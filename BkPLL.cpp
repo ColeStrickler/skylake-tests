@@ -606,6 +606,7 @@ int main(int argc, char* argv[])
 			/* not using coloring */
 			myvector.push_back(i);			
 		}
+	}
 
 	// using built-in random generator:
 	std::random_shuffle (myvector.begin(), myvector.end() );
