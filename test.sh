@@ -30,17 +30,31 @@ sleep 1
 echo -e "\nRunning victim....."
 
 
-
+while true; do
 # for some reason we are getting the id of something other than BkPLL
-perf stat -e LLC-loads,LLC-load-misses ./BkPLLVictim -m 2000 -b 0x0 -e $victim_slice -z -l 12 -c $victim_core -i 250000 > out.txt &
+perf stat -e LLC-loads,LLC-load-misses ./BkPLLVictim -m 2000 -b 0x0 -e $victim_slice -z -l 12 -c $victim_core -i 250000 1>out.txt 2>&1 &
 perf_pid=$!
-sleep .050
-pgrep BkPLLVictim
+sleep .060
+#pgrep BkPLLVictim
 victim_pid=$(pgrep BkPLLVictim)
 echo $victim_pid
-echo $victim_pid > /sys/fs/cgroup/palloc/part1/cgroup.procs
 
-wait $perf_pid
+if [ -z "$victim_pid" ]; then
+    killall -9 perf
+    killall -9 BkPLLVictim
+    continue
+else 
+    echo $victim_pid > /sys/fs/cgroup/palloc/part1/cgroup.procs
+    wait $perf_pid
+    llc_miss_rate=$(grep "LLC-load-misses" out.txt |awk '{match($0, /([0-9]+\.[0-9]+)%/, arr); print arr[1]}')
+    echo "LLC Miss rate: $llc_miss_rate"
+fi
+
+# We do not want to record this test data if the LLC miss rate is what is causing the slowdown
+if echo "$llc_miss_rate < 1.00" | bc -l | grep -q '^1'; then
+    break
+fi
+done
 
 bw=$(grep "bandwidth" out.txt | awk '{ print $2 }')
 echo "$corun,$victim_core,$victim_slice,$attacker_slice,$bw" >> stats.txt

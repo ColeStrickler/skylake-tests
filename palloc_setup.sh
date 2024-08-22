@@ -9,7 +9,7 @@
 
 
 
-echo 0x10000 > /sys/kernel/debug/palloc/palloc_mask
+echo 0x70000 > /sys/kernel/debug/palloc/palloc_mask
 
 
 #Create partitions
@@ -23,10 +23,10 @@ cgcreate -g palloc:part7
 cgcreate -g palloc:part8
 
 #Assign bins to partitions
-echo 0 > /sys/fs/cgroup/palloc/part1/palloc.bins 
-echo 1 > /sys/fs/cgroup/palloc/part2/palloc.bins
+echo 0-6 > /sys/fs/cgroup/palloc/part1/palloc.bins 
+echo 7 > /sys/fs/cgroup/palloc/part2/palloc.bins
 echo 0-1 > /sys/fs/cgroup/palloc/part3/palloc.bins
 
 echo never > /sys/kernel/mm/transparent_hugepage/enabled
-echo 2 > /sys/kernel/debug/palloc/alloc_balance
+echo 8 > /sys/kernel/debug/palloc/alloc_balance # wait until at least 8 colors are in the color cache
 echo 1 > /sys/kernel/debug/palloc/use_palloc

@@ -1,8 +1,13 @@
 import matplotlib.pyplot as plt
-
+import sys
 
 base_bandwidth = {}
 withCorun_bandwidth = {}
+
+
+file=sys.argv[1]
+scale=sys.argv[2]
+
 
 def ParseData(arr):
     for dp in arr:
@@ -22,7 +27,7 @@ def ParseData(arr):
 
 lines = []
 data = []
-with open("./stats.txt", "r") as f:
+with open(file, "r") as f:
     lines = f.readlines()
      
 for line in lines:
@@ -53,7 +58,7 @@ for key in withCorun_bandwidth:
 
     print(f"{x_index}, {y_index}, {y_bandwidths}")
     axs[x_index, y_index].plot(x_attacker_slices, y_bandwidths)
-    axs[x_index, y_index].set_ylim(0.95, 8)
+    axs[x_index, y_index].set_ylim(0.95, int(scale))
     axs[x_index, y_index].set_title(f"VictimCore={victim_core} VictimSlice={victim_slice}")
     axs[x_index, y_index].set_xlabel('Attacker Slice Target')
     axs[x_index, y_index].set_ylabel('Victim Bandwidth Slowdown')
